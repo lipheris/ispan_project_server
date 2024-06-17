@@ -37,7 +37,7 @@ public class PictureController {
 		return pictureService.getAllPictures();
 	}
 
-	@PostMapping()
+	@PostMapping
 	public Picture createPicture(@RequestBody PictureDTO pictureDto) {
 		return pictureService.createPicture(pictureDto);
 	}

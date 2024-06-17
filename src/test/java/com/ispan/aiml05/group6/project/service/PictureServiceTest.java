@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import com.ispan.aiml05.group6.project.dao.PictureRepo;
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
+import com.ispan.aiml05.group6.project.exception.PictureDTONullException;
 import com.ispan.aiml05.group6.project.exception.PictureNotFoundException;
 
 class PictureServiceTest {
@@ -39,11 +40,19 @@ class PictureServiceTest {
         Picture picture = new Picture();
         when(pictureRepo.save(picture)).thenReturn(picture);
 
-        PictureDTO pictureDto = new PictureDTO();
+        PictureDTO pictureDto = PictureDTO.builder()
+            .points(new double[17][2])
+            .build();
         Picture createdPicture = pictureService.createPicture(pictureDto);
 
         assertEquals(picture, createdPicture);
         verify(pictureRepo, times(1)).save(picture);
+    }
+
+    @Test
+    void testCreatePictureWithNullDTO(){
+        PictureDTO pictureDto = null;
+        assertThrows(PictureDTONullException.class, () -> pictureService.createPicture(pictureDto));
     }
 
     @Test
@@ -78,10 +87,18 @@ class PictureServiceTest {
     void testUpdatePicture() {
         Picture picture = new Picture();
         when(pictureRepo.save(picture)).thenReturn(picture);
-        PictureDTO pictureDto = new PictureDTO();
+        PictureDTO pictureDto = PictureDTO.builder()
+            .points(new double[17][2])
+            .build();
         Picture updatedPicture = pictureService.updatePicture(pictureDto);
 
         assertEquals(picture, updatedPicture);
+    }
+
+    @Test
+    void testUpdatePictureWithNullDTO(){
+        PictureDTO pictureDto = null;
+        assertThrows(PictureDTONullException.class, () -> pictureService.updatePicture(pictureDto));
     }
 
     @Test

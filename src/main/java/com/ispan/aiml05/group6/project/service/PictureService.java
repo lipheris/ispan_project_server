@@ -1,6 +1,7 @@
 package com.ispan.aiml05.group6.project.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import com.ispan.aiml05.group6.project.converter.PictureConverter;
 import com.ispan.aiml05.group6.project.dao.PictureRepo;
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
+import com.ispan.aiml05.group6.project.exception.PictureDTONullException;
 import com.ispan.aiml05.group6.project.exception.PictureNotFoundException;
 
 @Service
@@ -23,6 +25,7 @@ public class PictureService {
 	}
 
 	public Picture createPicture(PictureDTO pictureDto) {
+		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTONullException("PictureDTO is null"));
 		Picture picture = PictureConverter.convert(pictureDto);
         return pictureRepo.save(picture);
 	}
@@ -36,6 +39,7 @@ public class PictureService {
 	}
 	
 	public Picture updatePicture(PictureDTO pictureDto) {
+		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTONullException("PictureDTO is null"));
 		Picture picture = PictureConverter.convert(pictureDto);
 		return pictureRepo.save(picture);
 	}

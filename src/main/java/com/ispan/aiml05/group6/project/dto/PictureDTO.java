@@ -15,5 +15,6 @@ public class PictureDTO {
 	private long id;
 	private LocalDateTime createdAt;
 	private String location;
-	private double[][] points;
+	@Builder.Default
+	private double[][] points = new double[17][2];
 }
