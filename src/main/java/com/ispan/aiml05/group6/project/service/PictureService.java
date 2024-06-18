@@ -10,7 +10,7 @@ import com.ispan.aiml05.group6.project.converter.PictureConverter;
 import com.ispan.aiml05.group6.project.dao.PictureRepo;
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
-import com.ispan.aiml05.group6.project.exception.PictureDTONullException;
+import com.ispan.aiml05.group6.project.exception.PictureDTOException;
 import com.ispan.aiml05.group6.project.exception.PictureNotFoundException;
 
 @Service
@@ -25,7 +25,7 @@ public class PictureService {
 	}
 
 	public Picture createPicture(PictureDTO pictureDto) {
-		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTONullException("PictureDTO is null"));
+		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
 		Picture picture = PictureConverter.convert(pictureDto);
         return pictureRepo.save(picture);
 	}
@@ -39,7 +39,7 @@ public class PictureService {
 	}
 	
 	public Picture updatePicture(PictureDTO pictureDto) {
-		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTONullException("PictureDTO is null"));
+		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
 		Picture picture = PictureConverter.convert(pictureDto);
 		return pictureRepo.save(picture);
 	}

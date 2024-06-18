@@ -19,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 import com.ispan.aiml05.group6.project.dao.PictureRepo;
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
-import com.ispan.aiml05.group6.project.exception.PictureDTONullException;
+import com.ispan.aiml05.group6.project.exception.PictureDTOException;
 import com.ispan.aiml05.group6.project.exception.PictureNotFoundException;
 
 class PictureServiceTest {
@@ -52,7 +52,7 @@ class PictureServiceTest {
     @Test
     void testCreatePictureWithNullDTO(){
         PictureDTO pictureDto = null;
-        assertThrows(PictureDTONullException.class, () -> pictureService.createPicture(pictureDto));
+        assertThrows(PictureDTOException.class, () -> pictureService.createPicture(pictureDto));
     }
 
     @Test
@@ -98,7 +98,7 @@ class PictureServiceTest {
     @Test
     void testUpdatePictureWithNullDTO(){
         PictureDTO pictureDto = null;
-        assertThrows(PictureDTONullException.class, () -> pictureService.updatePicture(pictureDto));
+        assertThrows(PictureDTOException.class, () -> pictureService.updatePicture(pictureDto));
     }
 
     @Test

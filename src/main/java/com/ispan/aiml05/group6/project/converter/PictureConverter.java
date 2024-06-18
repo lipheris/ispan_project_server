@@ -1,50 +1,38 @@
 package com.ispan.aiml05.group6.project.converter;
 
+import java.lang.reflect.Field;
+
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
+import com.ispan.aiml05.group6.project.exception.PictureDTOException;
 
 public class PictureConverter {
 
-	public static Picture convert(PictureDTO pictureDto) {
-		return Picture.builder()
+	public static Picture convert(PictureDTO pictureDto) throws PictureDTOException {
+		Picture convertedPicture = Picture.builder()
 				.id(pictureDto.getId())
 				.createdAt(pictureDto.getCreatedAt())
 				.location(pictureDto.getLocation())
-				.x1(pictureDto.getPoints()[0][0])
-				.y1(pictureDto.getPoints()[0][1])
-				.x2(pictureDto.getPoints()[1][0])
-				.y2(pictureDto.getPoints()[1][1])
-				.x3(pictureDto.getPoints()[2][0])
-				.y3(pictureDto.getPoints()[2][1])
-				.x4(pictureDto.getPoints()[3][0])
-				.y4(pictureDto.getPoints()[3][1])
-				.x5(pictureDto.getPoints()[4][0])
-				.y5(pictureDto.getPoints()[4][1])
-				.x6(pictureDto.getPoints()[5][0])
-				.y6(pictureDto.getPoints()[5][1])
-				.x7(pictureDto.getPoints()[6][0])
-				.y7(pictureDto.getPoints()[6][1])
-				.x8(pictureDto.getPoints()[7][0])
-				.y8(pictureDto.getPoints()[7][1])
-				.x9(pictureDto.getPoints()[8][0])
-				.y9(pictureDto.getPoints()[8][1])
-				.x10(pictureDto.getPoints()[9][0])
-				.y10(pictureDto.getPoints()[9][1])
-				.x11(pictureDto.getPoints()[10][0])
-				.y11(pictureDto.getPoints()[10][1])
-				.x12(pictureDto.getPoints()[11][0])
-				.y12(pictureDto.getPoints()[11][1])
-				.x13(pictureDto.getPoints()[12][0])
-				.y13(pictureDto.getPoints()[12][1])
-				.x14(pictureDto.getPoints()[13][0])
-				.y14(pictureDto.getPoints()[13][1])
-				.x15(pictureDto.getPoints()[14][0])
-				.y15(pictureDto.getPoints()[14][1])
-				.x16(pictureDto.getPoints()[15][0])
-				.y16(pictureDto.getPoints()[15][1])
-				.x17(pictureDto.getPoints()[16][0])
-				.y17(pictureDto.getPoints()[16][1])
 				.build();
+		double[][] points = pictureDto.getPoints();
+		try {
+			for (int i = 1; i <= Math.min(points.length, 17) ; i++) {
+				String xFieldName = "x" + i;
+				String yFieldName = "y" + i;
+				Field xField = Picture.class.getDeclaredField(xFieldName);
+			    Field yField = Picture.class.getDeclaredField(yFieldName);
+				// 取消私有屬性的封裝性
+				xField.setAccessible(true); 
+				yField.setAccessible(true); 
+				xField.set(convertedPicture, points[i-1][0]);
+				yField.set(convertedPicture, points[i-1][1]);
+			}
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+			throw new PictureDTOException("PictureDTO converter failed");
+
+		}
+		return convertedPicture;
 	}
 
 	public static PictureDTO convert(Picture picture) {

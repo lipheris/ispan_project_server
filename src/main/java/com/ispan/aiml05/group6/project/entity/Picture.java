@@ -26,7 +26,7 @@ public class Picture {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@Column(name = "PIC_CREATED_AT")
+	@Column(name = "PIC_CREATED_AT", insertable = false, updatable = false)
 	private LocalDateTime createdAt;
 	
 	@Column(name = "PIC_LOC")
