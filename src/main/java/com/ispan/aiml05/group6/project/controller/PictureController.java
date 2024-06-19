@@ -1,8 +1,10 @@
 package com.ispan.aiml05.group6.project.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
@@ -33,17 +36,25 @@ public class PictureController {
 	}
 
 	@GetMapping
-	public List<Picture> getAllPicture() {
+	public List<PictureDTO> getAllPictures() {
 		return pictureService.getAllPictures();
 	}
 
+	@GetMapping("/search")
+	public List<PictureDTO> getPicturesByDateRangeAndLoc(
+		@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, 
+		@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate, 
+		@RequestParam("location") String location){
+		return pictureService.getPicturesByDateRangeAndLoc(startDate, endDate, location);
+	}
+
 	@PostMapping
-	public Picture createPicture(@RequestBody PictureDTO pictureDto) {
+	public PictureDTO createPicture(@RequestBody PictureDTO pictureDto) {
 		return pictureService.createPicture(pictureDto);
 	}
 
 	@PutMapping("/{id}")
-	public Picture updatePicture(@PathVariable long id, @RequestBody PictureDTO pictureDto) {
+	public PictureDTO updatePicture(@PathVariable long id, @RequestBody PictureDTO pictureDto) {
 		return pictureService.updatePicture(pictureDto);
 	}
 

@@ -1,5 +1,8 @@
 package com.ispan.aiml05.group6.project.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,27 +27,37 @@ public class PictureService {
 		this.pictureRepo = pictureRepo;
 	}
 
-	public Picture createPicture(PictureDTO pictureDto) {
+	public PictureDTO createPicture(PictureDTO pictureDto) {
 		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
 		Picture picture = PictureConverter.convert(pictureDto);
-        return pictureRepo.save(picture);
+        pictureRepo.save(picture);
+		return PictureConverter.convert(picture);
 	}
 
 	public Picture getPictureById(long id) {
 		return pictureRepo.findById(id).orElseThrow(() -> new PictureNotFoundException("Picture not found with id " + id));
 	}
 	
-	public List<Picture> getAllPictures() {
-		return pictureRepo.findAll();
+	public List<PictureDTO> getAllPictures() {
+		return pictureRepo.findAll().stream().map(PictureConverter::convert).toList();
 	}
 	
-	public Picture updatePicture(PictureDTO pictureDto) {
+	public PictureDTO updatePicture(PictureDTO pictureDto) {
 		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
-		Picture picture = PictureConverter.convert(pictureDto);
-		return pictureRepo.save(picture);
+		Picture picture = pictureRepo.findById(pictureDto.getId()).orElseThrow(() -> new PictureNotFoundException("Picture does not exist"));
+		picture = pictureRepo.save(PictureConverter.convert(pictureDto));
+		return PictureConverter.convert(picture);
 	}
 	
 	public void deletePictureById(long id) {
+		pictureRepo.findById(id).orElseThrow(() -> new PictureNotFoundException("Picture "+ id +" does not exist"));
 		pictureRepo.deleteById(id);
+	}
+
+	public List<PictureDTO> getPicturesByDateRangeAndLoc(LocalDate startDate, LocalDate endDate, String location) {
+		LocalDateTime startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
+		LocalDateTime endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
+		List<Picture> pictures = pictureRepo.findPicturesByCreatedAtRangeAndLocation(startDateTime, endDateTime, location);
+		return pictures.stream().map(PictureConverter::convert).toList();
 	}
 }
