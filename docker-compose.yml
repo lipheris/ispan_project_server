@@ -3,8 +3,9 @@ version: '3.8'
 services:
   docker_db:
     image: mysql:latest    
-    container_name: docker_db
+    container_name: project_db
     restart: always
+    working_dir: /app
     environment:
       MYSQL_ROOT_PASSWORD: P@ssw0rd  # 設置你的 MySQL root 密碼
       MYSQL_DATABASE: project       # 設置你的資料庫名稱
@@ -13,10 +14,11 @@ services:
       - "3308:3306"                  # 將 MySQL 的 3306 port 映射到主機的 3308 port
 
   docker_server:
-    build:
-      context: .
-      dockerfile: Dockerfile       # 路徑到你的 Spring Boot 應用的 Dockerfile
-    container_name: docker_server
+    # build:
+    #   dockerfile: Dockerfile       # 路徑到你的 Spring Boot 應用的 Dockerfile
+    #   context: .
+    image: lipheris/project-server
+    container_name: project_server
     restart: always
     working_dir: /app
     ports:
@@ -25,6 +27,6 @@ services:
       - docker_db                      # 宣告依賴關係，確保 MySQL 服務在 Spring Boot 應用之前啟動
 
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://docker_db:3306/project?createDatabaseIfNotExist=true&serverTimezone=Asia/Taipei&characterEncoding=utf-8
+      SPRING_DATASOURCE_URL: jdbc:mysql://project_db:3306/project?createDatabaseIfNotExist=true&serverTimezone=Asia/Taipei&characterEncoding=utf-8
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: P@ssw0rd  # 根據你的 MySQL 配置設置密碼
+      SPRING_DATASOURCE_PASSWORD: P@ssw0rd  # MySQL密碼

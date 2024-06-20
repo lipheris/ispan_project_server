@@ -29,6 +29,7 @@ public class PictureService {
 
 	public PictureDTO createPicture(PictureDTO pictureDto) {
 		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
+		pictureDto.setId(0);
 		Picture picture = PictureConverter.convert(pictureDto);
         pictureRepo.save(picture);
 		return PictureConverter.convert(picture);
@@ -42,10 +43,22 @@ public class PictureService {
 		return pictureRepo.findAll().stream().map(PictureConverter::convert).toList();
 	}
 	
-	public PictureDTO updatePicture(PictureDTO pictureDto) {
+	public PictureDTO replacePicture(long id, PictureDTO pictureDto){
 		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
-		Picture picture = pictureRepo.findById(pictureDto.getId()).orElseThrow(() -> new PictureNotFoundException("Picture does not exist"));
-		picture = pictureRepo.save(PictureConverter.convert(pictureDto));
+		if(!existsById(id)){
+			pictureDto.setId(0);
+            return createPicture(pictureDto);
+        }else{
+			Picture picture = pictureRepo.save(PictureConverter.convert(pictureDto));
+			return PictureConverter.convert(picture);
+		}
+	}
+
+	public PictureDTO updatePicture(long id, PictureDTO pictureDto) {
+		if(!pictureRepo.existsById(id))
+			throw new PictureNotFoundException("Picture "+ id +" does not exist");
+		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
+		Picture picture = pictureRepo.save(PictureConverter.convert(pictureDto));
 		return PictureConverter.convert(picture);
 	}
 	
@@ -59,5 +72,9 @@ public class PictureService {
 		LocalDateTime endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
 		List<Picture> pictures = pictureRepo.findPicturesByCreatedAtRangeAndLocation(startDateTime, endDateTime, location);
 		return pictures.stream().map(PictureConverter::convert).toList();
+	}
+
+	public boolean existsById(long id) {
+		return pictureRepo.existsById(id);
 	}
 }

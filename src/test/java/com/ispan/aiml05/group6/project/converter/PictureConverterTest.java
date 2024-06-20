@@ -1,22 +1,39 @@
 package com.ispan.aiml05.group6.project.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
 
 public class PictureConverterTest {
+	private Decoder decoder;
+	private Encoder encoder;
+	private String base64Str;
+
+	@BeforeEach
+	void setup(){
+		decoder = Base64.getDecoder();
+		encoder = Base64.getEncoder();
+		base64Str = encoder.encodeToString("Test String".getBytes());
+	}
 
 	@Test
-	public void testConvertToPictureDTO() {
+	void testConvertPictureDTO() {
 		PictureDTO dto = PictureDTO.builder()
 				.id(1L)
 				.createdAt(LocalDateTime.now())
 				.location("Test Location")
+				.base64Image(base64Str)
 				.points(new double[][] {
 						{ 1.0, 2.0 }, { 3.0, 4.0 }, { 5.0, 6.0 }, { 7.0, 8.0 }, { 9.0, 10.0 },
 						{ 11.0, 12.0 }, { 13.0, 14.0 }, { 15.0, 16.0 }, { 17.0, 18.0 }, { 19.0, 20.0 },
@@ -28,6 +45,8 @@ public class PictureConverterTest {
 		assertEquals(dto.getId(), convertedPicture.getId());
 		assertEquals(dto.getCreatedAt(), convertedPicture.getCreatedAt());
 		assertEquals(dto.getLocation(), convertedPicture.getLocation());
+		assertTrue(Arrays.equals(decoder.decode(dto.getBase64Image()), convertedPicture.getImage()));
+
 		assertEquals(dto.getPoints().length, 17);
 		assertEquals(dto.getPoints()[0][0], convertedPicture.getX1(), 0.0);
 		assertEquals(dto.getPoints()[0][1], convertedPicture.getY1(), 0.0);
@@ -66,11 +85,12 @@ public class PictureConverterTest {
 	}
 
 	@Test
-	public void testConvertToPicture() {
+	void testConvertPicture() {
 		Picture picture = Picture.builder()
 				.id(1L)
 				.createdAt(LocalDateTime.now())
 				.location("Test Location")
+				.image(decoder.decode(base64Str))
 				.x1(1.0).y1(2.0)
 				.x2(3.0).y2(4.0)
 				.x3(5.0).y3(6.0)
@@ -94,6 +114,8 @@ public class PictureConverterTest {
 		assertEquals(picture.getId(), convertedDTO.getId());
 		assertEquals(picture.getCreatedAt(), convertedDTO.getCreatedAt());
 		assertEquals(picture.getLocation(), convertedDTO.getLocation());
+		assertTrue(Arrays.equals(picture.getImage(), decoder.decode(convertedDTO.getBase64Image())));
+
 
 		assertEquals(17, convertedDTO.getPoints().length);
 		assertEquals(picture.getX1(), convertedDTO.getPoints()[0][0], 0.0);

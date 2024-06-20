@@ -134,18 +134,12 @@ class PictureServiceTest {
                 .points(new double[17][2])
                 .build();
 
-        Picture existingPicture = Picture.builder()
-                .id(1)
-                .createdAt(LocalDateTime.now().minusDays(1))
-                .location("Old Location")
-                .x1(0.1).y1(0.2).build();
-
         Picture updatedPicture = PictureConverter.convert(pictureDto);
 
-        when(pictureRepo.findById(pictureDto.getId())).thenReturn(Optional.of(existingPicture));
+        when(pictureRepo.existsById(1L)).thenReturn(true);
         when(pictureRepo.save(updatedPicture)).thenReturn(updatedPicture);
 
-        PictureDTO result = pictureService.updatePicture(pictureDto);
+        PictureDTO result = pictureService.updatePicture(1L, pictureDto);
 
         assertNotNull(result);
         assertEquals(pictureDto.getId(), result.getId());
@@ -153,14 +147,16 @@ class PictureServiceTest {
         assertEquals(pictureDto.getLocation(), result.getLocation());
         assertArrayEquals(pictureDto.getPoints(), result.getPoints());
 
-        verify(pictureRepo, times(1)).findById(pictureDto.getId());
+        verify(pictureRepo, times(1)).existsById(1L);
         verify(pictureRepo, times(1)).save(any(Picture.class));
     }
 
     @Test
     void testUpdatePictureWithNullDTO() {
-        PictureDTO pictureDto = null;
-        assertThrows(PictureDTOException.class, () -> pictureService.updatePicture(pictureDto));
+        when(pictureRepo.existsById(1L)).thenReturn(true);
+        
+        PictureDTOException e = assertThrows(PictureDTOException.class, () -> pictureService.updatePicture(1L, null));
+        assertEquals("PictureDTO is null", e.getMessage());
     }
 
     @Test

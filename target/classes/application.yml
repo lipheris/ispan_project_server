@@ -4,7 +4,7 @@ spring:
   datasource:
     username: root
     password: P@ssw0rd
-    url: jdbc:mysql://localhost:3307/PROJECT?createDatabaseIfNotExist=true&serverTimezone=Asia/Taipei&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3307/project?createDatabaseIfNotExist=true&serverTimezone=Asia/Taipei&characterEncoding=utf-8
   servlet:
     multipart:
       enabled: true
