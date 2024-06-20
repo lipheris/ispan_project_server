@@ -7,6 +7,7 @@ create table if not exists project.picture (
     pic_id int auto_increment primary key not null,
     pic_created_at timestamp default current_timestamp,
     pic_loc varchar(50),
+    pic_image mediumblob,
     x1 double,
     y1 double,
     x2 double,
@@ -43,3 +44,4 @@ create table if not exists project.picture (
     y17 double,
     index idx_pic_loc (pic_loc)
 );
+show create table project.picture;
