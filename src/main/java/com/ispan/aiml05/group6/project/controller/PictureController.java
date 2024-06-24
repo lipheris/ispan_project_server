@@ -40,16 +40,13 @@ public class PictureController {
 	}
 
 	@GetMapping
-	public List<PictureDTO> getAllPictures() {
-		return pictureService.getAllPictures();
-	}
-
-	@GetMapping("/search")
-	public List<PictureDTO> getPicturesByDateRangeAndLoc(
-			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+	public List<PictureDTO> getPictures(
+			@RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			@RequestParam(value = "location", required = false, defaultValue = "") String location) {
-		return pictureService.getPicturesByDateRangeAndLoc(startDate, endDate, location);
+		if (startDate != null && endDate != null)
+			return pictureService.getPicturesByDateRangeAndLoc(startDate, endDate, location);
+		return pictureService.getAllPictures();
 	}
 
 	@PostMapping
