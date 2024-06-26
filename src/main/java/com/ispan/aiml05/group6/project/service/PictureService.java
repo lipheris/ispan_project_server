@@ -21,18 +21,20 @@ public class PictureService {
 
 	
 	private final PictureRepo pictureRepo;
+	private final PictureConverter pictureConverter;
 	
 	@Autowired
-	public PictureService(PictureRepo pictureRepo) {
+	public PictureService(PictureRepo pictureRepo, PictureConverter pictureConverter) {
 		this.pictureRepo = pictureRepo;
+		this.pictureConverter = pictureConverter;
 	}
 
 	public PictureDTO createPicture(PictureDTO pictureDto) {
 		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
 		pictureDto.setId(0);
-		Picture picture = PictureConverter.convert(pictureDto);
-        pictureRepo.save(picture);
-		return PictureConverter.convert(picture);
+		Picture picture = pictureConverter.convert(pictureDto);
+        picture = pictureRepo.save(picture);
+		return pictureConverter.convert(picture);
 	}
 
 	public Picture getPictureById(long id) {
@@ -40,7 +42,7 @@ public class PictureService {
 	}
 	
 	public List<PictureDTO> getAllPictures() {
-		return pictureRepo.findAll().stream().map(PictureConverter::convert).toList();
+		return pictureRepo.findAll().stream().map(pictureConverter::convert).toList();
 	}
 	
 	public PictureDTO replacePicture(long id, PictureDTO pictureDto){
@@ -49,8 +51,8 @@ public class PictureService {
 			pictureDto.setId(0);
             return createPicture(pictureDto);
         }else{
-			Picture picture = pictureRepo.save(PictureConverter.convert(pictureDto));
-			return PictureConverter.convert(picture);
+			Picture picture = pictureRepo.save(pictureConverter.convert(pictureDto));
+			return pictureConverter.convert(picture);
 		}
 	}
 
@@ -58,8 +60,8 @@ public class PictureService {
 		if(!pictureRepo.existsById(id))
 			throw new PictureNotFoundException("Picture "+ id +" does not exist");
 		pictureDto = Optional.ofNullable(pictureDto).orElseThrow(() -> new PictureDTOException("PictureDTO is null"));
-		Picture picture = pictureRepo.save(PictureConverter.convert(pictureDto));
-		return PictureConverter.convert(picture);
+		Picture picture = pictureRepo.save(pictureConverter.convert(pictureDto));
+		return pictureConverter.convert(picture);
 	}
 	
 	public void deletePictureById(long id) {
@@ -71,7 +73,7 @@ public class PictureService {
 		LocalDateTime startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
 		LocalDateTime endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
 		List<Picture> pictures = pictureRepo.findPicturesByCreatedAtRangeAndLocation(startDateTime, endDateTime, location);
-		return pictures.stream().map(PictureConverter::convert).toList();
+		return pictures.stream().map(pictureConverter::convert).toList();
 	}
 
 	public boolean existsById(long id) {

@@ -4,7 +4,7 @@ spring:
   datasource:
     username: root
     password: P@ssw0rd
-    url: jdbc:mysql://localhost:3307/project?createDatabaseIfNotExist=true&serverTimezone=Asia/Taipei&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/project?createDatabaseIfNotExist=true&serverTimezone=Asia/Taipei&characterEncoding=utf-8
   servlet:
     multipart:
       enabled: true
@@ -21,6 +21,9 @@ spring:
     init:
       mode: always
       schema-locations: classpath:PROJECT_SCHEMA_INIT.sql
+pictures:
+  storage:
+    path: ${PIC_STORAGE_PATH:./src/main/resources/static/pictures}
 server:
   port: 8080
 

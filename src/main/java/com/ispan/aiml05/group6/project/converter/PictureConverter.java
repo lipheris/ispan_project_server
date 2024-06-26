@@ -1,19 +1,42 @@
 package com.ispan.aiml05.group6.project.converter;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Base64.Decoder;
-import java.util.Base64.Encoder;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.ispan.aiml05.group6.project.config.AppConfig;
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
 import com.ispan.aiml05.group6.project.exception.PictureDTOException;
+import com.ispan.aiml05.group6.project.exception.PictureSaveException;
+import com.ispan.aiml05.group6.project.service.FileService;
 
+import lombok.Getter;
+
+@Component
 public class PictureConverter {
-	private static final Decoder decoder = Base64.getDecoder();
-	private static final Encoder encoder = Base64.getEncoder();
+	private final Decoder decoder;
+	private final AppConfig appConfig;
+	private final FileService fileService;
+	@Getter
+	private String savedPath;
 
-	public static Picture convert(PictureDTO pictureDto) throws PictureDTOException {
+	@Autowired
+	public PictureConverter(AppConfig appConfig, FileService fileService) {
+		decoder = Base64.getDecoder();
+		this.appConfig = appConfig;
+		this.fileService = fileService;
+	}
+
+	public Picture convert(PictureDTO pictureDto) throws PictureDTOException {
 		if (pictureDto == null) {
 			throw new PictureDTOException("PictureDTO is null");
 		}
@@ -30,12 +53,14 @@ public class PictureConverter {
 			if (image.length > 16_000_000) { // 假設最大允許大小為16MB
 				throw new PictureDTOException("Image too large");
 			}
+			savePictureToDir(image);
 		}
+
 		Picture convertedPicture = Picture.builder()
 				.id(pictureDto.getId())
 				.createdAt(pictureDto.getCreatedAt())
 				.location(pictureDto.getLocation())
-				.image(image)
+				.path(savedPath)
 				.build();
 		double[][] points = pictureDto.getPoints();
 		try {
@@ -58,16 +83,12 @@ public class PictureConverter {
 		return convertedPicture;
 	}
 
-	public static PictureDTO convert(Picture picture) {
+	public PictureDTO convert(Picture picture) {
 		if (picture == null) {
 			throw new PictureDTOException("Picture is null");
 		}
-		
-		String base64Image = null;
-		double[][] points = new double[17][2];
 
-		if(picture.getImage() != null)
-		base64Image = encoder.encodeToString(picture.getImage());
+		double[][] points = new double[17][2];
 
 		points[0][0] = picture.getX1();
 		points[0][1] = picture.getY1();
@@ -108,8 +129,30 @@ public class PictureConverter {
 				.id(picture.getId())
 				.createdAt(picture.getCreatedAt())
 				.location(picture.getLocation())
-				.base64Image(base64Image)
+				.path(picture.getPath())
 				.points(points)
 				.build();
+	}
+
+	private void savePictureToDir(byte[] image) {
+
+		LocalDateTime now = LocalDateTime.now();
+		String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		String time = now.format(DateTimeFormatter.ofPattern("HH-mm-ss"));
+
+		String picPath = appConfig.getPicStoragePath();
+		Path dirPath = Paths.get(picPath, date);
+
+		try {
+			fileService.createDirectories(dirPath);
+
+			String fileName = time + ".jpg";
+			Path filePath = dirPath.resolve(fileName);
+
+			fileService.write(filePath, image);
+			savedPath = filePath.toString();
+		} catch (IOException e) {
+			throw new PictureSaveException("Failed to save picture");
+		}
 	}
 }

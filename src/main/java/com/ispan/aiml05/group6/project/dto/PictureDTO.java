@@ -19,6 +19,7 @@ public class PictureDTO {
 	private String location;
 	@JsonProperty("image")
 	private String base64Image;
+	private String path;
 	@Builder.Default
 	private double[][] points = new double[17][2];
 }

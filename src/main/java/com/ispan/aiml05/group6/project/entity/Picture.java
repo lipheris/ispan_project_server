@@ -7,7 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,23 +18,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "PICTURE")
+@Table(name = "picture")
 public class Picture {
 	
 	@Id
-	@Column(name = "PIC_ID")
+	@Column(name = "pic_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@Column(name = "PIC_CREATED_AT", insertable = false, updatable = false)
+	@Column(name = "pic_created_at", insertable = false, updatable = false)
 	private LocalDateTime createdAt;
 	
-	@Column(name = "PIC_LOC")
+	@Column(name = "pic_loc")
 	private String location;
 
-	@Lob
-	@Column(name = "PIC_IMAGE", columnDefinition = "MEDIUMBLOB")
-	private byte[] image;
+	@Column(name = "pic_path")
+	private String path;
 	
 	private double x1;
 	private double y1;

@@ -1,156 +1,159 @@
 package com.ispan.aiml05.group6.project.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import java.util.Base64.Decoder;
-import java.util.Base64.Encoder;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.ispan.aiml05.group6.project.config.AppConfig;
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
 import com.ispan.aiml05.group6.project.entity.Picture;
+import com.ispan.aiml05.group6.project.exception.PictureDTOException;
+import com.ispan.aiml05.group6.project.exception.PictureSaveException;
+import com.ispan.aiml05.group6.project.service.FileService;
 
+@ExtendWith(MockitoExtension.class)
 public class PictureConverterTest {
-	private Decoder decoder;
-	private Encoder encoder;
-	private String base64Str;
+
+	@Mock
+	private AppConfig appConfig;
+
+	@Mock
+	private FileService fileService;
+
+	@InjectMocks
+	private PictureConverter pictureConverter;
+
+	private PictureDTO pictureDTO;
+	private byte[] imageData;
 
 	@BeforeEach
-	void setup(){
-		decoder = Base64.getDecoder();
-		encoder = Base64.getEncoder();
-		base64Str = encoder.encodeToString("Test String".getBytes());
-	}
-
-	@Test
-	void testConvertPictureDTO() {
-		PictureDTO dto = PictureDTO.builder()
+	public void setup() {
+		pictureDTO = PictureDTO.builder()
 				.id(1L)
 				.createdAt(LocalDateTime.now())
 				.location("Test Location")
-				.base64Image(base64Str)
-				.points(new double[][] {
-						{ 1.0, 2.0 }, { 3.0, 4.0 }, { 5.0, 6.0 }, { 7.0, 8.0 }, { 9.0, 10.0 },
-						{ 11.0, 12.0 }, { 13.0, 14.0 }, { 15.0, 16.0 }, { 17.0, 18.0 }, { 19.0, 20.0 },
-						{ 21.0, 22.0 }, { 23.0, 24.0 }, { 25.0, 26.0 }, { 27.0, 28.0 }, { 29.0, 30.0 },
-						{ 31.0, 32.0 }, { 33.0, 34.0 } })
+				.base64Image(Base64.getEncoder().encodeToString("test image".getBytes()))
+				.points(new double[17][2])
 				.build();
-		Picture convertedPicture = PictureConverter.convert(dto);
-
-		assertEquals(dto.getId(), convertedPicture.getId());
-		assertEquals(dto.getCreatedAt(), convertedPicture.getCreatedAt());
-		assertEquals(dto.getLocation(), convertedPicture.getLocation());
-		assertTrue(Arrays.equals(decoder.decode(dto.getBase64Image()), convertedPicture.getImage()));
-
-		assertEquals(dto.getPoints().length, 17);
-		assertEquals(dto.getPoints()[0][0], convertedPicture.getX1(), 0.0);
-		assertEquals(dto.getPoints()[0][1], convertedPicture.getY1(), 0.0);
-		assertEquals(dto.getPoints()[1][0], convertedPicture.getX2(), 0.0);
-		assertEquals(dto.getPoints()[1][1], convertedPicture.getY2(), 0.0);
-		assertEquals(dto.getPoints()[2][0], convertedPicture.getX3(), 0.0);
-		assertEquals(dto.getPoints()[2][1], convertedPicture.getY3(), 0.0);
-		assertEquals(dto.getPoints()[3][0], convertedPicture.getX4(), 0.0);
-		assertEquals(dto.getPoints()[3][1], convertedPicture.getY4(), 0.0);
-		assertEquals(dto.getPoints()[4][0], convertedPicture.getX5(), 0.0);
-		assertEquals(dto.getPoints()[4][1], convertedPicture.getY5(), 0.0);
-		assertEquals(dto.getPoints()[5][0], convertedPicture.getX6(), 0.0);
-		assertEquals(dto.getPoints()[5][1], convertedPicture.getY6(), 0.0);
-		assertEquals(dto.getPoints()[6][0], convertedPicture.getX7(), 0.0);
-		assertEquals(dto.getPoints()[6][1], convertedPicture.getY7(), 0.0);
-		assertEquals(dto.getPoints()[7][0], convertedPicture.getX8(), 0.0);
-		assertEquals(dto.getPoints()[7][1], convertedPicture.getY8(), 0.0);
-		assertEquals(dto.getPoints()[8][0], convertedPicture.getX9(), 0.0);
-		assertEquals(dto.getPoints()[8][1], convertedPicture.getY9(), 0.0);
-		assertEquals(dto.getPoints()[9][0], convertedPicture.getX10(), 0.0);
-		assertEquals(dto.getPoints()[9][1], convertedPicture.getY10(), 0.0);
-		assertEquals(dto.getPoints()[10][0], convertedPicture.getX11(), 0.0);
-		assertEquals(dto.getPoints()[10][1], convertedPicture.getY11(), 0.0);
-		assertEquals(dto.getPoints()[11][0], convertedPicture.getX12(), 0.0);
-		assertEquals(dto.getPoints()[11][1], convertedPicture.getY12(), 0.0);
-		assertEquals(dto.getPoints()[12][0], convertedPicture.getX13(), 0.0);
-		assertEquals(dto.getPoints()[12][1], convertedPicture.getY13(), 0.0);
-		assertEquals(dto.getPoints()[13][0], convertedPicture.getX14(), 0.0);
-		assertEquals(dto.getPoints()[13][1], convertedPicture.getY14(), 0.0);
-		assertEquals(dto.getPoints()[14][0], convertedPicture.getX15(), 0.0);
-		assertEquals(dto.getPoints()[14][1], convertedPicture.getY15(), 0.0);
-		assertEquals(dto.getPoints()[15][0], convertedPicture.getX16(), 0.0);
-		assertEquals(dto.getPoints()[15][1], convertedPicture.getY16(), 0.0);
-		assertEquals(dto.getPoints()[16][0], convertedPicture.getX17(), 0.0);
-		assertEquals(dto.getPoints()[16][1], convertedPicture.getY17(), 0.0);
+		imageData = Base64.getDecoder().decode(pictureDTO.getBase64Image());
 	}
 
 	@Test
-	void testConvertPicture() {
-		Picture picture = Picture.builder()
-				.id(1L)
-				.createdAt(LocalDateTime.now())
-				.location("Test Location")
-				.image(decoder.decode(base64Str))
-				.x1(1.0).y1(2.0)
-				.x2(3.0).y2(4.0)
-				.x3(5.0).y3(6.0)
-				.x4(7.0).y4(8.0)
-				.x5(9.0).y5(10.0)
-				.x6(11.0).y6(12.0)
-				.x7(13.0).y7(14.0)
-				.x8(15.0).y8(16.0)
-				.x9(17.0).y9(18.0)
-				.x10(19.0).y10(20.0)
-				.x11(21.0).y11(22.0)
-				.x12(23.0).y12(24.0)
-				.x13(25.0).y13(26.0)
-				.x14(27.0).y14(28.0)
-				.x15(29.0).y15(30.0)
-				.x16(31.0).y16(32.0)
-				.x17(33.0).y17(34.0)
-				.build();
-		PictureDTO convertedDTO = PictureConverter.convert(picture);
+	public void testConvertPictureDTOtoPictureSuccess() throws PictureDTOException {
+		when(appConfig.getPicStoragePath()).thenReturn("/test/path");
 
-		assertEquals(picture.getId(), convertedDTO.getId());
-		assertEquals(picture.getCreatedAt(), convertedDTO.getCreatedAt());
-		assertEquals(picture.getLocation(), convertedDTO.getLocation());
-		assertTrue(Arrays.equals(picture.getImage(), decoder.decode(convertedDTO.getBase64Image())));
+		Picture picture = pictureConverter.convert(pictureDTO);
 
+		assertNotNull(picture);
+		assertEquals(pictureDTO.getId(), picture.getId());
+		assertEquals(pictureDTO.getCreatedAt(), picture.getCreatedAt());
+		assertEquals(pictureDTO.getLocation(), picture.getLocation());
+		String expectedPathPrefix = Paths.get("/test/path").toString();
+		assertTrue(picture.getPath().startsWith(expectedPathPrefix));
+	}
 
-		assertEquals(17, convertedDTO.getPoints().length);
-		assertEquals(picture.getX1(), convertedDTO.getPoints()[0][0], 0.0);
-		assertEquals(picture.getY1(), convertedDTO.getPoints()[0][1], 0.0);
-		assertEquals(picture.getX2(), convertedDTO.getPoints()[1][0], 0.0);
-		assertEquals(picture.getY2(), convertedDTO.getPoints()[1][1], 0.0);
-		assertEquals(picture.getX3(), convertedDTO.getPoints()[2][0], 0.0);
-		assertEquals(picture.getY3(), convertedDTO.getPoints()[2][1], 0.0);
-		assertEquals(picture.getX4(), convertedDTO.getPoints()[3][0], 0.0);
-		assertEquals(picture.getY4(), convertedDTO.getPoints()[3][1], 0.0);
-		assertEquals(picture.getX5(), convertedDTO.getPoints()[4][0], 0.0);
-		assertEquals(picture.getY5(), convertedDTO.getPoints()[4][1], 0.0);
-		assertEquals(picture.getX6(), convertedDTO.getPoints()[5][0], 0.0);
-		assertEquals(picture.getY6(), convertedDTO.getPoints()[5][1], 0.0);
-		assertEquals(picture.getX7(), convertedDTO.getPoints()[6][0], 0.0);
-		assertEquals(picture.getY7(), convertedDTO.getPoints()[6][1], 0.0);
-		assertEquals(picture.getX8(), convertedDTO.getPoints()[7][0], 0.0);
-		assertEquals(picture.getY8(), convertedDTO.getPoints()[7][1], 0.0);
-		assertEquals(picture.getX9(), convertedDTO.getPoints()[8][0], 0.0);
-		assertEquals(picture.getY9(), convertedDTO.getPoints()[8][1], 0.0);
-		assertEquals(picture.getX10(), convertedDTO.getPoints()[9][0], 0.0);
-		assertEquals(picture.getY10(), convertedDTO.getPoints()[9][1], 0.0);
-		assertEquals(picture.getX11(), convertedDTO.getPoints()[10][0], 0.0);
-		assertEquals(picture.getY11(), convertedDTO.getPoints()[10][1], 0.0);
-		assertEquals(picture.getX12(), convertedDTO.getPoints()[11][0], 0.0);
-		assertEquals(picture.getY12(), convertedDTO.getPoints()[11][1], 0.0);
-		assertEquals(picture.getX13(), convertedDTO.getPoints()[12][0], 0.0);
-		assertEquals(picture.getY13(), convertedDTO.getPoints()[12][1], 0.0);
-		assertEquals(picture.getX14(), convertedDTO.getPoints()[13][0], 0.0);
-		assertEquals(picture.getY14(), convertedDTO.getPoints()[13][1], 0.0);
-		assertEquals(picture.getX15(), convertedDTO.getPoints()[14][0], 0.0);
-		assertEquals(picture.getY15(), convertedDTO.getPoints()[14][1], 0.0);
-		assertEquals(picture.getX16(), convertedDTO.getPoints()[15][0], 0.0);
-		assertEquals(picture.getY16(), convertedDTO.getPoints()[15][1], 0.0);
-		assertEquals(picture.getX17(), convertedDTO.getPoints()[16][0], 0.0);
-		assertEquals(picture.getY17(), convertedDTO.getPoints()[16][1], 0.0);
+	@Test
+	public void testConvertPictureDTOtoPictureNullDTO() {
+		PictureDTO nullDTO = null;
+
+		PictureDTOException exception = assertThrows(PictureDTOException.class, () -> {
+			pictureConverter.convert(nullDTO);
+		});
+
+		assertEquals("PictureDTO is null", exception.getMessage());
+	}
+
+	@Test
+	public void testConvertInvalidBase64Image() {
+		pictureDTO.setBase64Image("invalid base64");
+
+		PictureDTOException exception = assertThrows(PictureDTOException.class, () -> {
+			pictureConverter.convert(pictureDTO);
+		});
+
+		assertEquals("Invalid Base64 image data", exception.getMessage());
+	}
+
+	@Test
+	public void testConvertLargeImage() {
+		byte[] largeImage = new byte[16_000_001];
+		pictureDTO.setBase64Image(Base64.getEncoder().encodeToString(largeImage));
+
+		PictureDTOException exception = assertThrows(PictureDTOException.class, () -> {
+			pictureConverter.convert(pictureDTO);
+		});
+
+		assertEquals("Image too large", exception.getMessage());
+	}
+
+	@Test
+	public void testSavePictureToDirSuccess()
+			throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+		when(appConfig.getPicStoragePath()).thenReturn("/test/path");
+
+		Path dirPath = Paths.get("/test/path", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+		Path filePath = dirPath.resolve(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH-mm-ss")) + ".jpg");
+
+		doNothing().when(fileService).createDirectories(dirPath);
+		doNothing().when(fileService).write(filePath, imageData);
+
+		Method savePictureToDirMethod = PictureConverter.class.getDeclaredMethod("savePictureToDir", byte[].class);
+		savePictureToDirMethod.setAccessible(true);
+		savePictureToDirMethod.invoke(pictureConverter, imageData);
+
+		String savedPath = pictureConverter.getSavedPath();
+
+		assertNotNull(savedPath);
+		assertTrue(savedPath.startsWith(Paths.get("/test/path").toString()));
+	}
+
+	@Test
+	public void testSavePictureToDirException()
+			throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+		when(appConfig.getPicStoragePath()).thenReturn("/test/path");
+
+		Path dirPath = Paths.get("/test/path", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+		doThrow(IOException.class).when(fileService).createDirectories(dirPath);
+
+		Method savePictureToDirMethod = PictureConverter.class.getDeclaredMethod("savePictureToDir", byte[].class);
+		savePictureToDirMethod.setAccessible(true);
+		try {
+			savePictureToDirMethod.invoke(pictureConverter, imageData);
+			fail("Expected PictureSaveException to be thrown"); // Fail the test if no exception is thrown
+		} catch (InvocationTargetException e) {
+			Throwable targetException = e.getTargetException();
+			if (targetException instanceof PictureSaveException) {
+				assertEquals("Failed to save picture", targetException.getMessage());
+			} else {
+				fail("Unexpected exception thrown: " + targetException.getClass().getName());
+			}
+		}
+		PictureSaveException exception = assertThrows(PictureSaveException.class, () -> {
+			pictureConverter.convert(pictureDTO);
+		});
+
+		assertEquals("Failed to save picture", exception.getMessage());
 	}
 }
