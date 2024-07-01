@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring System</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <link rel="stylesheet" href="test.css">
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+        .input-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .input-container input {
+            flex: 1;
+            padding-right: 30px; 
+        }
+        .toggle-password {
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Monitoring System</h2>
+    <div class="container" id="container">
+        <div class="form-container sign-up-container">
+            <form id="signUpForm" action="#">
+                <h1>Create Account</h1>
+                <span>or use your email for registration</span>
+                <div class="input-container">
+                    <input type="text" id="registerName" placeholder="Name" required />
+                </div>
+                <span id="registerNameError" class="error"></span>
+                <div class="input-container">
+                    <input type="email" id="registerEmail" placeholder="Email" required />
+                </div>
+                <span id="registerEmailError" class="error"></span>
+                <div class="input-container">
+                    <input type="password" id="registerPassword" placeholder="Password" required />
+                    <i class="fas fa-eye toggle-password" id="toggleRegisterPassword"></i>
+                </div>
+                <span id="registerPasswordError" class="error"></span>
+                <button type="submit">Sign Up</button>
+                <p id="signUpSuccess" class="success"></p>
+            </form>
+        </div>
+        <div class="form-container sign-in-container">
+            <form id="signInForm" action="#">
+                <h1>Sign in</h1>
+                <span>or use your account</span>
+                <div class="input-container">
+                    <input type="email" id="email" placeholder="Email" required />
+                </div>
+                <span id="emailError" class="error"></span>
+                <div class="input-container">
+                    <input type="password" id="password" placeholder="Password" required />
+                    <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+                <span id="passwordError" class="error"></span>
+                <a href="#">Forgot your password?</a>
+                <button type="submit">Sign In</button>
+                <p id="signInError" class="error"></p>
+            </form>
+        </div>
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>To keep connected with us please login with your personal info</p>
+                    <button class="ghost" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Enter your personal details and start journey with us</p>
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p></p>
+    </footer>
+
+    <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePassword(password) {
+            const re = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+            return re.test(password);
+        }
+
+        function togglePasswordVisibility(passwordFieldId, toggleButtonId) {
+            const passwordField = document.getElementById(passwordFieldId);
+            const toggleButton = document.getElementById(toggleButtonId);
+
+            toggleButton.addEventListener('click', () => {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleButton.classList.remove('fa-eye');
+                    toggleButton.classList.add('fa-eye-slash');
+                } else {
+                    passwordField.type = 'password';
+                    toggleButton.classList.remove('fa-eye-slash');
+                    toggleButton.classList.add('fa-eye');
+                }
+            });
+        }
+
+        togglePasswordVisibility('registerPassword', 'toggleRegisterPassword');
+        togglePasswordVisibility('password', 'togglePassword');
+
+        const tempEmail = 'user@gmail.com';
+        const tempPassword = 'a1s2d3f@';
+        const tempName = 'aiml-05';
+
+        // 審查名稱
+        document.getElementById('registerName').addEventListener('blur', function() {
+            const name = this.value;
+            const registerNameError = document.getElementById('registerNameError');
+            registerNameError.textContent = '';
+            if (name === tempName) {
+                registerNameError.textContent = '該名字已註冊';
+            }
+        });
+
+        // 審查郵箱
+        document.getElementById('registerEmail').addEventListener('blur', function() {
+            const email = this.value;
+            const registerEmailError = document.getElementById('registerEmailError');
+            registerEmailError.textContent = '';
+            if (email === tempEmail) {
+                registerEmailError.textContent = '該郵箱已註冊過';
+            } else if (email === '') {
+                registerEmailError.textContent = '尚未輸入';
+            } else if (!validateEmail(email)) {
+                registerEmailError.textContent = '格式錯誤';
+            }
+        });
+
+        // 註冊表單提交事件
+        document.getElementById('signUpForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            const registerEmailError = document.getElementById('registerEmailError');
+            const registerPasswordError = document.getElementById('registerPasswordError');
+            const registerNameError = document.getElementById('registerNameError');
+            const signUpSuccess = document.getElementById('signUpSuccess');
+            registerEmailError.textContent = '';
+            registerPasswordError.textContent = '';
+            registerNameError.textContent = '';
+            signUpSuccess.textContent = '';
+
+            if (name === tempName) {
+                registerNameError.textContent = '該名字已註冊';
+                return;
+            }
+
+            if (email === tempEmail) {
+                registerEmailError.textContent = '該郵箱已被使用';
+                return;
+            }
+
+            if (email === '') {
+                registerEmailError.textContent = '尚未輸入';
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                registerEmailError.textContent = '格式錯誤';
+                return;
+            }
+
+            if (password === '') {
+                registerPasswordError.textContent = '尚未輸入';
+                return;
+            }
+
+            if (!validatePassword(password)) {
+                registerPasswordError.textContent = '密碼必須包含英文、數字、特殊字元且大於六字元';
+                return;
+            }
+
+            // 向伺服器發送註冊請求
+            const response = await fetch('http://localhost:8081/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            if (response.ok) {
+                signUpSuccess.textContent = "User registered successfully";
+                setTimeout(() => {
+                    container.classList.remove("right-panel-active");
+                }, 2000);
+            } else if (response.status === 409) {
+                registerEmailError.textContent = "User already exists";
+            } else {
+                registerEmailError.textContent = "Error registering user";
+            }
+        });
+
+        // 登入表單提交事件
+        document.getElementById('signInForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const signInError = document.getElementById('signInError');
+            signInError.textContent = '';
+
+            if (email === '') {
+                signInError.textContent = '尚未輸入';
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                signInError.textContent = '格式錯誤';
+                return;
+            }
+
+            if (password === '') {
+                signInError.textContent = '尚未輸入';
+                return;
+            }
+
+            if (!validatePassword(password)) {
+                signInError.textContent = '格式錯誤';
+                return;
+            }
+
+            // 向伺服器發送登入請求
+            const response = await fetch('http://192.168.24.94/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                sessionStorage.setItem('token', data.token);
+                window.location.href = "camera.html";
+            } else if (response.status === 404) {
+                signInError.textContent = "User not registered. Please sign up first.";
+                setTimeout(() => {
+                    container.classList.add("right-panel-active");
+                }, 2000);
+            } else {
+                signInError.textContent = "Invalid email or password";
+            }
+        });
+
+        window.onload = function() {
+            const token = sessionStorage.getItem('token');
+            if (token) {
+                fetch('http://localhost:8081/api/protected', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = "camera.html";
+                    }
+                });
+            }
+        }
+
+        // 確保頁面在返回時刷新
+        window.onpageshow = function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
+    </script>
+</body>
+</html>
