@@ -43,7 +43,7 @@ services:
       - ./src/main/resources/nginx.conf:/etc/nginx/nginx.conf
       # - ./html:/usr/share/nginx/html
       - ./src/main/resources/static/html:/usr/share/nginx/html
-      - ./src/main/resources/static/pictures:/usr/share/nginx/html/pictures
+      - ./src/main/resources/static/pictures:/usr/share/nginx/pictures
     depends_on:
       - dev_backend_server
     ports:

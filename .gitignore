@@ -25,5 +25,5 @@ replay_pid*
 
 target/*
 .classpath
-static/pictures/*
-static/html/*
+src/main/resources/static/pictures/*
+src/main/resources/static/html/*
