@@ -44,19 +44,27 @@ public class PictureConverterTest {
 	@InjectMocks
 	private PictureConverter pictureConverter;
 
+	private Picture picture;
 	private PictureDTO pictureDTO;
 	private byte[] imageData;
 
 	@BeforeEach
 	public void setup() {
+		LocalDateTime now = LocalDateTime.now();
 		pictureDTO = PictureDTO.builder()
 				.id(1L)
-				.createdAt(LocalDateTime.now())
+				.createdAt(now)
 				.location("Test Location")
 				.base64Image(Base64.getEncoder().encodeToString("test image".getBytes()))
 				.points(new double[17][2])
 				.build();
 		imageData = Base64.getDecoder().decode(pictureDTO.getBase64Image());
+		picture = Picture.builder()
+				.id(1L)
+				.createdAt(now)
+				.location("Test Location")
+				.path("test/path/image.jpg")
+				.build();
 	}
 
 	@Test
@@ -155,5 +163,21 @@ public class PictureConverterTest {
 		});
 
 		assertEquals("Failed to save picture", exception.getMessage());
+	}
+
+	@Test
+	public void testConvertPictureDtoValid() {
+		PictureDTO result = pictureConverter.convert(picture);
+		PictureDTO expectedPictureDto = PictureDTO.builder()
+			.id(picture.getId())
+			.createdAt(picture.getCreatedAt())
+			.location(picture.getLocation())
+			.path(picture.getPath()).build();
+		assertEquals(expectedPictureDto, result);
+	}
+	@Test
+    public void testConvertPictureDtoInvalid() {
+		final Picture nullPicture = null;
+		assertThrows(PictureDTOException.class, ()->pictureConverter.convert(nullPicture));
 	}
 }
