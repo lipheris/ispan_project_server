@@ -148,6 +148,44 @@ class PictureServiceTest {
         }
 
         @Test
+        void testReplacePictureWithNullDTO() {
+                assertThrows(PictureDTOException.class, () -> pictureService.replacePicture(1L, null));
+        }
+
+        @Test
+        void testReplacePictureIdDoesNotExist() {
+                PictureDTO pictureDTO = PictureDTO.builder()
+                                .location("Test Location")
+                                .points(new double[17][2])
+                                .build();
+                when(pictureService.existsById(1L)).thenReturn(true);
+                when(pictureService.createPicture(pictureDTO)).thenReturn(pictureDTO);
+                PictureDTO result = pictureService.replacePicture(1L, pictureDTO);
+                assertEquals(pictureDTO, result);
+
+        }
+
+        @Test
+        void testReplacePictureIdExist(){
+                PictureDTO pictureDTO = PictureDTO.builder()
+                                .location("Test Location")
+                                .points(new double[17][2])
+                                .build();
+                Picture picture = Picture.builder().location("Test Location").build();
+
+                when(pictureService.existsById(1L)).thenReturn(false);
+                when(pictureConverter.convert(pictureDTO)).thenReturn(picture);
+                when(pictureConverter.convert(picture)).thenReturn(pictureDTO);
+                when(pictureRepo.save(picture)).thenReturn(picture);
+
+                PictureDTO result = pictureService.replacePicture(1L, pictureDTO);
+                assertEquals(pictureDTO, result);
+
+                verify(pictureRepo, times(1)).save(picture);
+                verify(pictureConverter, times(1)).convert(picture);
+        }
+
+        @Test
         void testUpdatePicture() {
                 LocalDateTime now = LocalDateTime.now();
                 PictureDTO pictureDto = PictureDTO.builder()
@@ -287,5 +325,19 @@ class PictureServiceTest {
 
                 verify(pictureRepo, times(1)).findPicturesByCreatedAtRangeAndLocation(
                                 startDateTime, endDateTime, location);
+        }
+
+        @Test
+        public void testExistsById() {
+                when(pictureRepo.existsById(1L)).thenReturn(true);
+                boolean result = pictureService.existsById(1L);
+                assertTrue(result);
+        }
+
+        @Test
+        public void testExistsByIdNotExists() {
+                when(pictureRepo.existsById(2L)).thenReturn(false);
+                boolean result = pictureService.existsById(2L);
+                assertFalse(result);
         }
 }
