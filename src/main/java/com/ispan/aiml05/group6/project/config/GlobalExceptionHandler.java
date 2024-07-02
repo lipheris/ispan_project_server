@@ -1,7 +1,5 @@
 package com.ispan.aiml05.group6.project.config;
 
-import java.io.IOException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.ispan.aiml05.group6.project.exception.PictureDTOException;
 import com.ispan.aiml05.group6.project.exception.PictureNotFoundException;
+import com.ispan.aiml05.group6.project.exception.PictureSaveException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,8 +21,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-	@ExceptionHandler(IOException.class)
-    public ResponseEntity<String> handleIOException(IOException e){
+	@ExceptionHandler(PictureSaveException.class)
+    public ResponseEntity<String> handlePictureSaveException(PictureSaveException e){
         return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
