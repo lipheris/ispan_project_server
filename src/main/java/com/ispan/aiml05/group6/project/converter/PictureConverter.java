@@ -19,15 +19,12 @@ import com.ispan.aiml05.group6.project.exception.PictureDTOException;
 import com.ispan.aiml05.group6.project.exception.PictureSaveException;
 import com.ispan.aiml05.group6.project.service.FileService;
 
-import lombok.Getter;
 
 @Component
 public class PictureConverter {
 	private final Decoder decoder;
 	private final AppConfig appConfig;
 	private final FileService fileService;
-	@Getter
-	private String savedPath;
 
 	@Autowired
 	public PictureConverter(AppConfig appConfig, FileService fileService) {
@@ -42,7 +39,7 @@ public class PictureConverter {
 		}
 
 		byte[] image = null;
-
+		String savedPath = null;
 		if (pictureDto.getBase64Image() != null) {
 			try {
 				image = decoder.decode(pictureDto.getBase64Image());
@@ -53,7 +50,7 @@ public class PictureConverter {
 			if (image.length > 16_000_000) { // 假設最大允許大小為16MB
 				throw new PictureDTOException("Image too large");
 			}
-			savePictureToDir(image);
+			savedPath = savePictureToDir(image);
 		}
 
 		Picture convertedPicture = Picture.builder()
@@ -134,7 +131,7 @@ public class PictureConverter {
 				.build();
 	}
 
-	private void savePictureToDir(byte[] image) {
+	private String savePictureToDir(byte[] image) {
 
 		LocalDateTime now = LocalDateTime.now();
 		String date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -150,7 +147,7 @@ public class PictureConverter {
 			Path filePath = dirPath.resolve(fileName);
 
 			fileService.write(filePath, image);
-			savedPath = filePath.toString();
+			return filePath.toString();
 		} catch (IOException e) {
 			throw new PictureSaveException("Failed to save picture");
 		}

@@ -128,9 +128,8 @@ public class PictureConverterTest {
 
 		Method savePictureToDirMethod = PictureConverter.class.getDeclaredMethod("savePictureToDir", byte[].class);
 		savePictureToDirMethod.setAccessible(true);
-		savePictureToDirMethod.invoke(pictureConverter, imageData);
+		String savedPath = (String)savePictureToDirMethod.invoke(pictureConverter, imageData);
 
-		String savedPath = pictureConverter.getSavedPath();
 
 		assertNotNull(savedPath);
 		assertTrue(savedPath.startsWith(Paths.get("/test/path").toString()));
