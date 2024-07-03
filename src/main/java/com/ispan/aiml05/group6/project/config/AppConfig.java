@@ -10,4 +10,12 @@ public class AppConfig {
 	@Getter
 	@Value("${pictures.storage.path}")
     private String picStoragePath;
+
+	@Getter
+	@Value("${jwt.secret-key}")
+	private String secretKey;
+
+	@Getter
+    @Value("${jwt.expiration-time}")
+    private long expirationTime;
 }

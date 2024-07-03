@@ -23,7 +23,10 @@ spring:
       schema-locations: classpath:PROJECT_SCHEMA_INIT.sql
 pictures:
   storage:
-    path: ${PIC_STORAGE_PATH:./src/main/resources/static/pictures}
+    path: ${PIC_STORAGE_PATH: classpath:/static/pictures}
+jwt:
+  secret-key: ispan-aiml05
+  expiration-time: 86400000
 server:
   port: 8080
 
