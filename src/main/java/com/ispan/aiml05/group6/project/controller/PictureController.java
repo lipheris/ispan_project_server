@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ispan.aiml05.group6.project.dto.PictureDTO;
-import com.ispan.aiml05.group6.project.entity.Picture;
 import com.ispan.aiml05.group6.project.service.PictureService;
 
 @RestController
@@ -35,7 +34,7 @@ public class PictureController {
 	}
 
 	@GetMapping("/{id}")
-	public Picture getPictureById(@PathVariable long id) {
+	public PictureDTO getPictureById(@PathVariable long id) {
 		return pictureService.getPictureById(id);
 	}
 

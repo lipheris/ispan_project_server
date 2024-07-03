@@ -37,8 +37,8 @@ public class PictureService {
 		return pictureConverter.convert(picture);
 	}
 
-	public Picture getPictureById(long id) {
-		return pictureRepo.findById(id).orElseThrow(() -> new PictureNotFoundException("Picture not found with id " + id));
+	public PictureDTO getPictureById(long id) {
+		return pictureRepo.findById(id).map(pictureConverter::convert).orElseThrow(() -> new PictureNotFoundException("Picture not found with id " + id));
 	}
 	
 	public List<PictureDTO> getAllPictures() {
